@@ -6,7 +6,7 @@ import { useProducts } from "@/shop/hook/useProducts"
 export const HomePage = () => {
    
   const {data} = useProducts();
- 
+
   return (
     <>
       <CustomJumbotron title="Todos los productos" />
