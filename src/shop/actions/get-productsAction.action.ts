@@ -1,9 +1,32 @@
 import { quickShopApi } from "@/api/quickTesloApi"
 import type { ProductsResponse } from "@/interface/products.response"
-import { products } from "@/mocks/prodcucts.mock";
 
-export const getProductAction = async() => {
-    const {data} = await quickShopApi.get<ProductsResponse>('/products');
+interface Options {
+    limit?: number | string;
+    offset?: number | string;
+    sizes?: string;
+    gender?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    query?: string;
+}
+
+export const getProductAction = async(
+    options: Options
+):Promise<ProductsResponse> => {
+    const {limit, offset, sizes, gender, minPrice, maxPrice, query} = options;
+    
+    const {data} = await quickShopApi.get<ProductsResponse>('/products', {
+        params: {
+            limit,
+            offset,
+            sizes,
+            gender,
+            minPrice,
+            maxPrice,
+            q: query,
+        }
+    });
 
     const productWithImageUrls = data.products.map((product) => ({
         ...product,
