@@ -10,7 +10,7 @@ export const useProducts = () => {
     const limit = searchParams.get('limit') || 9;
     const page = searchParams.get('page') || 1;
     const sizes = searchParams.get('sizes') || undefined;
-     const query = searchParams.get('query') || undefined;
+    const query = searchParams.get('query') || undefined;
 
     const offset = (Number(page) - 1) * Number(limit);
 
