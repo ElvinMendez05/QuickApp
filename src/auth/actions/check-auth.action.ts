@@ -15,3 +15,6 @@ export const checkAuthAction = async() : Promise<AuthResponse> => {
        throw new Error('Token expired or not valid')
     }
 }
+
+
+
