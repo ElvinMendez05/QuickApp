@@ -18,13 +18,17 @@ export const AdminProductPage = () => {
       ? 'Aquí puedes crear un nuevo producto.'
       : 'Aquí puedes editar el producto.';
 
-   const handleSubmit = async(productLike: Partial<Product>) => {
+   const handleSubmit = async(productLike: Partial<Product> & {file?: File[]}) => {
     await mutation.mutateAsync(productLike, {
       onSuccess: (data) => {
         toast.success('Producto actualizado correctamente', {
           position: 'top-right',
         });
         navigate(`/admin/products/${data.id}`)
+      },
+      onError: (error) => {
+        console.log(error)
+        toast.error('Error al actualizar el producto')
       }
     })
    }   
@@ -47,6 +51,7 @@ export const AdminProductPage = () => {
      subTitle={subtitle} 
      product={product} 
      onSubmit={handleSubmit}
+     isPending={mutation.isPending}
      />
   
 };
