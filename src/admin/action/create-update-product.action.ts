@@ -3,22 +3,36 @@ import type { Product } from "@/interface/product.interface"
 import { sleep } from "@/lib/sleep";
 
 export const createUpdateProductAction = async (
-    productLike: Partial<Product>
+    productLike: Partial<Product> & {files?: File[]}
    ): Promise<Product> => {
     
     await sleep(1500);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {id, user, images = [], ...rest} = productLike;
+    const {id, user, images = [], files = [], ...rest} = productLike;
 
     const isCreating = id === 'new';
 
     rest.stock = Number(rest.stock || 0);
-    rest.price = Number(rest.price || 0)
+    rest.price = Number(rest.price || 0);
+    
+    //Preparing Images
+    if (files.length > 0) {
+        const newImageNames = await uploadFiles(files);
+        images.push(...newImageNames);
+    }
+
+    const imagesToSave = images.map(image => {
+        if (image.includes('http')) return image.split('/').pop() || '';
+        return image;
+    })
     
     const {data} = await quickShopApi<Product>({
         url: isCreating ? '/products' : `/products/${id}`,
         method: isCreating ? 'POST' : 'PATCH',
-        data: rest,
+        data: {
+            ...rest,
+            images: imagesToSave,
+        }
     })
 
     return {
@@ -29,3 +43,26 @@ export const createUpdateProductAction = async (
         })
       }
    }
+
+export interface FileUploadResponse {
+        secureUrl: string;
+        fileName: string;
+}
+
+const uploadFiles = async (files: File[]) => {
+    const uploadPromises = files.map(async(file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const {data} = await quickShopApi<FileUploadResponse>({
+            url: '/files/product',
+            method: 'POST',
+            data: formData,
+        })
+
+        return data.fileName;
+    });
+    
+    const uploadedFileNames = await Promise.all(uploadPromises);
+    return uploadedFileNames; 
+}
